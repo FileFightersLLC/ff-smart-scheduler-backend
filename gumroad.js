@@ -3,7 +3,7 @@ const router = express.Router();
 
 router.post('/gumroad', (req, res) => {
   const {
-    purchaser_email,
+    email,  // ✅ FIXED: Correct Gumroad field
     product_name = '',
     full_name,
     price,
@@ -25,7 +25,7 @@ router.post('/gumroad', (req, res) => {
 
   // Log with plan
   console.log('✅ Gumroad Webhook Received:', {
-    purchaser_email,
+    email,
     full_name,
     product_name,
     price,
