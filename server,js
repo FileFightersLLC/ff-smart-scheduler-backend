@@ -1,23 +1,26 @@
 const express = require('express');
-const bodyParser = require('body-parser');
 const cors = require('cors');
-
 const app = express();
-app.use(cors());
-app.use(bodyParser.json());
+const port = process.env.PORT || 3000;
 
+// Middleware
+app.use(cors());
+app.use(express.json());
+
+// Route to accept bookings
 app.post('/api/bookings', (req, res) => {
   const booking = req.body;
-  console.log('New Booking:', booking);
+  console.log('📬 New Booking Received:', booking);
 
-  // In production you'd save this to a DB
-  res.status(200).json({ message: 'Booking received successfully!' });
+  // In real app: save to database or send email
+  res.json({ message: 'Booking received successfully!' });
 });
 
+// Health check
 app.get('/', (req, res) => {
-  res.send('FF SmartScheduler backend is live!');
+  res.send('FF SmartScheduler Backend is running.');
 });
 
-app.listen(process.env.PORT || 3000, () => {
-  console.log('Backend running...');
+app.listen(port, () => {
+  console.log(`✅ Backend running on port ${port}`);
 });
