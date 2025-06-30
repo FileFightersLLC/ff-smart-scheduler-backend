@@ -457,7 +457,7 @@
       if (phone) params.append('phone', phone);
       if (brokerage) params.append('brand', brokerage);
 
-      const bookingLink = `https://stupendous-empanada-e840fd.netlify.app/index.html?${params.toString()}`;
+      const bookingLink = `https://ffscheduler.netlify.app/index.html?${params.toString()}`;
       const qrLink = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(bookingLink)}`;
 
       document.getElementById('displayName').textContent = name;
