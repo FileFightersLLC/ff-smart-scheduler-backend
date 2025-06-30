@@ -1,0 +1,23 @@
+const express = require('express');
+const bodyParser = require('body-parser');
+const cors = require('cors');
+
+const app = express();
+app.use(cors());
+app.use(bodyParser.json());
+
+app.post('/api/bookings', (req, res) => {
+  const booking = req.body;
+  console.log('New Booking:', booking);
+
+  // In production you'd save this to a DB
+  res.status(200).json({ message: 'Booking received successfully!' });
+});
+
+app.get('/', (req, res) => {
+  res.send('FF SmartScheduler backend is live!');
+});
+
+app.listen(process.env.PORT || 3000, () => {
+  console.log('Backend running...');
+});
