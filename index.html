@@ -440,159 +440,151 @@
       </div>
     </div>
   </div>
+<script>
+  // Get URL parameters
+  const urlParams = new URLSearchParams(window.location.search);
+  const agentName = urlParams.get('agent') || "your agent";
+  const agentEmail = urlParams.get('email') || "no-realtor@example.com";
+  const agentPhone = urlParams.get('phone') || "";
+  const agentBrand = urlParams.get('brand') || "";
 
-  <script>
-    // Get URL parameters
-    const urlParams = new URLSearchParams(window.location.search);
-    const agentName = urlParams.get('agent') || "your agent";
-    const agentEmail = urlParams.get('email') || "no-realtor@example.com";
-    const agentPhone = urlParams.get('phone') || "";
-    const agentBrand = urlParams.get('brand') || "";
+  // Update UI with agent information
+  document.getElementById("welcomeMsg").textContent = `Booking page for ${agentName}`;
 
-    // Update UI with agent information
-    document.getElementById("welcomeMsg").textContent = `Booking page for ${agentName}`;
-    
-    if (agentName !== "your agent") {
-      const agentInfo = document.getElementById("agentInfo");
-      const agentNameDisplay = document.getElementById("agentNameDisplay");
-      const agentContactInfo = document.getElementById("agentContactInfo");
-      
-      agentNameDisplay.textContent = agentName;
-      agentContactInfo.innerHTML = agentEmail + (agentPhone ? ` • ${agentPhone}` : '');
-      agentInfo.style.display = 'block';
-    }
+  if (agentName !== "your agent") {
+    const agentInfo = document.getElementById("agentInfo");
+    const agentNameDisplay = document.getElementById("agentNameDisplay");
+    const agentContactInfo = document.getElementById("agentContactInfo");
 
-    let appointmentType = "";
-    let appointmentEmoji = "";
-    let appointmentDuration = "";
+    agentNameDisplay.textContent = agentName;
+    agentContactInfo.innerHTML = agentEmail + (agentPhone ? ` • ${agentPhone}` : '');
+    agentInfo.style.display = 'block';
+  }
 
-    function updateStepIndicator(currentStep) {
-      // Reset all steps
-      document.querySelectorAll('.step').forEach((step, index) => {
-        step.classList.remove('active', 'completed');
-        if (index + 1 < currentStep) {
-          step.classList.add('completed');
-        } else if (index + 1 === currentStep) {
-          step.classList.add('active');
-        }
-      });
-    }
+  let appointmentType = "";
+  let appointmentEmoji = "";
+  let appointmentDuration = "";
 
-    function chooseType(type, emoji, duration) {
-      appointmentType = type;
-      appointmentEmoji = emoji;
-      appointmentDuration = duration;
-      
-      document.getElementById('selectedType').innerHTML = `${emoji} Booking: ${type} <span style="color: #c2e6ea;">(${duration})</span>`;
-      
-      // Transition between steps
-      document.getElementById('step1').style.display = 'none';
-      document.getElementById('step2').style.display = 'block';
-      updateStepIndicator(2);
-    }
-
-    function goBack() {
-      document.getElementById('step2').style.display = 'none';
-      document.getElementById('step1').style.display = 'block';
-      updateStepIndicator(1);
-    }
-
-    function validateForm() {
-      const name = document.getElementById('name').value.trim();
-      const email = document.getElementById('email').value.trim();
-      const phone = document.getElementById('phone').value.trim();
-
-      if (!name || !email || !phone) {
-        alert('Please fill out all required fields.');
-        return false;
+  function updateStepIndicator(currentStep) {
+    document.querySelectorAll('.step').forEach((step, index) => {
+      step.classList.remove('active', 'completed');
+      if (index + 1 < currentStep) {
+        step.classList.add('completed');
+      } else if (index + 1 === currentStep) {
+        step.classList.add('active');
       }
+    });
+  }
 
-      // Basic email validation
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      if (!emailRegex.test(email)) {
-        alert('Please enter a valid email address.');
-        return false;
-      }
+  function chooseType(type, emoji, duration) {
+    appointmentType = type;
+    appointmentEmoji = emoji;
+    appointmentDuration = duration;
 
-      return true;
+    document.getElementById('selectedType').innerHTML = `${emoji} Booking: ${type} <span style="color: #c2e6ea;">(${duration})</span>`;
+
+    document.getElementById('step1').style.display = 'none';
+    document.getElementById('step2').style.display = 'block';
+    updateStepIndicator(2);
+  }
+
+  function goBack() {
+    document.getElementById('step2').style.display = 'none';
+    document.getElementById('step1').style.display = 'block';
+    updateStepIndicator(1);
+  }
+
+  function validateForm() {
+    const name = document.getElementById('name').value.trim();
+    const email = document.getElementById('email').value.trim();
+    const phone = document.getElementById('phone').value.trim();
+
+    if (!name || !email || !phone) {
+      alert('Please fill out all required fields.');
+      return false;
     }
 
-    function submitForm() {
-      if (!validateForm()) {
-        return;
-      }
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      alert('Please enter a valid email address.');
+      return false;
+    }
 
-      const name = document.getElementById('name').value.trim();
-      const email = document.getElementById('email').value.trim();
-      const phone = document.getElementById('phone').value.trim();
-      const message = document.getElementById('message').value.trim();
-      document.getElementById('loadingSpinner').style.display = 'block';
+    return true;
+  }
 
+  function submitForm() {
+    if (!validateForm()) {
+      return;
+    }
 
-      // Create booking data object
-      const bookingData = {
-        agent: agentName,
-        agentEmail: agentEmail,
-        appointmentType,
-        appointmentEmoji,
-        appointmentDuration,
-        clientName: name,
-        clientEmail: email,
-        clientPhone: phone,
-        clientMessage: message,
-        submittedAt: new Date().toISOString(),
-        timestamp: new Date().toLocaleString()
-      };
+    const name = document.getElementById('name').value.trim();
+    const email = document.getElementById('email').value.trim();
+    const phone = document.getElementById('phone').value.trim();
+    const message = document.getElementById('message').value.trim();
+    document.getElementById('loadingSpinner').style.display = 'block';
 
-      console.log("Booking Request:", bookingData);
+    const bookingData = {
+      agent: agentName,
+      agentEmail: agentEmail,
+      appointmentType,
+      appointmentEmoji,
+      appointmentDuration,
+      clientName: name,
+      clientEmail: email,
+      clientPhone: phone,
+      clientMessage: message,
+      submittedAt: new Date().toISOString(),
+      timestamp: new Date().toLocaleString()
+    };
 
-      // Update confirmation page
-      document.getElementById('realtorNameText').textContent = agentName;
-      document.getElementById('summaryType').textContent = `${appointmentEmoji} ${appointmentType}`;
-      document.getElementById('summaryDuration').textContent = appointmentDuration;
-      document.getElementById('summaryContact').textContent = `${name} • ${email} • ${phone}`;
-      document.getElementById('summaryTime').textContent = new Date().toLocaleString();
+    console.log("Booking Request:", bookingData);
 
-      // Transition to confirmation
+    // Update confirmation page
+    document.getElementById('realtorNameText').textContent = agentName;
+    document.getElementById('summaryType').textContent = `${appointmentEmoji} ${appointmentType}`;
+    document.getElementById('summaryDuration').textContent = appointmentDuration;
+    document.getElementById('summaryContact').textContent = `${name} • ${email} • ${phone}`;
+    document.getElementById('summaryTime').textContent = new Date().toLocaleString();
+
+    fetch('https://ff-smart-scheduler-backend.onrender.com/api/bookings', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(bookingData)
+    })
+    .then(response => response.json())
+    .then(data => {
+      console.log('✅ Booking sent:', data);
+      document.getElementById('loadingSpinner').style.display = 'none';
+
+      // Show confirmation step after successful send
       document.getElementById('step2').style.display = 'none';
       document.getElementById('step3').style.display = 'block';
       updateStepIndicator(3);
+    })
+    .catch(error => {
+      console.error('❌ Error sending booking:', error);
+      document.getElementById('loadingSpinner').style.display = 'none';
+      alert('There was an error submitting your booking. Please try again.');
+    });
+  }
 
-      // In production, you would send this data to your backend
-      fetch('https://ff-smart-scheduler-backend.onrender.com/api/bookings', {
-  method: 'POST',
-  headers: {
-    'Content-Type': 'application/json'
-  },
-  body: JSON.stringify(bookingData)
-})
-.then(response => response.json())
-.then(data => {
-  console.log('✅ Booking sent:', data);
-  document.getElementById('loadingSpinner').style.display = 'none';
-  // You can add code here to show success UI or next step
-})
-.catch(error => {
-  console.error('❌ Error sending booking:', error);
-  document.getElementById('loadingSpinner').style.display = 'none';
-  // Optionally alert user about the error
-});
-      
-    function startOver() {
-      // Reset form
-      document.getElementById('name').value = '';
-      document.getElementById('email').value = '';
-      document.getElementById('phone').value = '';
-      document.getElementById('message').value = '';
-      
-      // Return to step 1
-      document.getElementById('step3').style.display = 'none';
-      document.getElementById('step1').style.display = 'block';
-      updateStepIndicator(1);
-    }
+  function startOver() {
+    document.getElementById('name').value = '';
+    document.getElementById('email').value = '';
+    document.getElementById('phone').value = '';
+    document.getElementById('message').value = '';
 
-    // Initialize
+    document.getElementById('step3').style.display = 'none';
+    document.getElementById('step1').style.display = 'block';
     updateStepIndicator(1);
-  </script>
+  }
+
+  // Initialize
+  updateStepIndicator(1);
+</script>
+
 </body>
 </html>
