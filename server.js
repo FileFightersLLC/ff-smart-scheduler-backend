@@ -28,6 +28,10 @@ app.post('/api/bookings', (req, res) => {
     to: booking.agentEmail, // The realtor's email from the form
     subject: `📅 New Booking from ${booking.clientName}`,
     text: `
+---
+DO NOT REPLY to this email.
+---
+
 You have received a new booking request:
 
 --- Appointment Details ---
