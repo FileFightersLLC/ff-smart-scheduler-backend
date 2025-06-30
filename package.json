@@ -1,13 +1,16 @@
 {
   "name": "ff-smart-scheduler-backend",
   "version": "1.0.0",
+  "description": "Backend for FF SmartScheduler appointment booking",
   "main": "server.js",
   "scripts": {
     "start": "node server.js"
   },
+  "author": "FileFighters LLC",
+  "license": "MIT",
   "dependencies": {
-    "express": "^4.18.2",
     "cors": "^2.8.5",
-    "body-parser": "^1.20.2"
+    "express": "^4.18.2",
+    "nodemailer": "^6.9.3"
   }
 }
