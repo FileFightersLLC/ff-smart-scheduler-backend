@@ -3,27 +3,21 @@ const router = express.Router();
 
 router.post('/gumroad', (req, res) => {
   const {
-    email,  // ✅ FIXED: Correct Gumroad field
-    product_name = '',
-    full_name,
+    email,         // Correct field from Gumroad
+    full_name,     // Optional but usually included
+    product_name,
     price,
-    sale_id,
-    product_permalink = ''
+    sale_id
   } = req.body;
 
-  // Normalize and detect plan tier
-  let plan = 'starter'; // default fallback
-
-  const name = product_name.toLowerCase();
-  const link = product_permalink.toLowerCase();
-
-  if (name.includes('enterprise') || link.includes('enterprise')) {
-    plan = 'enterprise';
-  } else if (name.includes('professional') || link.includes('professional')) {
+  // Determine plan type based on price
+  let plan = 'starter'; // default plan
+  if (price === '8900') {
     plan = 'professional';
+  } else if (price === '14900') {
+    plan = 'enterprise';
   }
 
-  // Log with plan
   console.log('✅ Gumroad Webhook Received:', {
     email,
     full_name,
@@ -33,7 +27,7 @@ router.post('/gumroad', (req, res) => {
     plan
   });
 
-  // Step 2: store this in the DB
+  // Step 2: Save this info to a database or trigger plan activation here
 
   res.status(200).send('Webhook received.');
 });
