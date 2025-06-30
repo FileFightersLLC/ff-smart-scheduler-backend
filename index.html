@@ -526,6 +526,8 @@
       const email = document.getElementById('email').value.trim();
       const phone = document.getElementById('phone').value.trim();
       const message = document.getElementById('message').value.trim();
+      document.getElementById('loadingSpinner').style.display = 'block';
+
 
       // Create booking data object
       const bookingData = {
@@ -567,12 +569,15 @@
 .then(response => response.json())
 .then(data => {
   console.log('✅ Booking sent:', data);
+  document.getElementById('loadingSpinner').style.display = 'none';
+  // You can add code here to show success UI or next step
 })
 .catch(error => {
   console.error('❌ Error sending booking:', error);
+  document.getElementById('loadingSpinner').style.display = 'none';
+  // Optionally alert user about the error
 });
-    }
-
+      
     function startOver() {
       // Reset form
       document.getElementById('name').value = '';
