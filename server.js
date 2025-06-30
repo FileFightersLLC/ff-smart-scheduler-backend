@@ -1,12 +1,16 @@
 const express = require('express');
 const cors = require('cors');
 const nodemailer = require('nodemailer');
+const gumroadRoutes = require('./gumroad'); // ✅ Import Gumroad route
 
 const app = express();
 const port = process.env.PORT || 3000;
 
 // Middleware
 app.use(cors());
+
+// 🟢 Add support for Gumroad's x-www-form-urlencoded webhook format
+app.use(express.urlencoded({ extended: true })); 
 app.use(express.json());
 
 // Email transporter setup (Gmail SMTP)
@@ -58,6 +62,9 @@ Submitted At: ${booking.submittedAt || new Date().toLocaleString()}
     res.json({ message: 'Booking received and email sent successfully!' });
   });
 });
+
+// ✅ Mount Gumroad webhook route
+app.use('/api', gumroadRoutes);
 
 // Health check
 app.get('/', (req, res) => {
