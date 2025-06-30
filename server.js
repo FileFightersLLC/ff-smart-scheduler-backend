@@ -1,6 +1,6 @@
 const express = require('express');
 const cors = require('cors');
-const nodemailer = require('nodemailer'); // add nodemailer
+const nodemailer = require('nodemailer');
 const app = express();
 const port = process.env.PORT || 3000;
 
@@ -8,49 +8,48 @@ const port = process.env.PORT || 3000;
 app.use(cors());
 app.use(express.json());
 
-// Configure your SMTP transporter
+// Configure your SMTP transporter (example uses Gmail SMTP)
 const transporter = nodemailer.createTransport({
-  host: 'smtp.gmail.com', // example for Gmail SMTP
-  port: 465,
-  secure: true, // true for 465, false for other ports
+  service: 'gmail',
   auth: {
-    user: process.env.EMAIL_USER, // your email, set as environment variable
-    pass: process.env.EMAIL_PASS  // your email app password or SMTP password
+    user: process.env.EMAIL_USER,     // Your email (set in Render environment variables)
+    pass: process.env.EMAIL_PASS      // Your app password or email password (set in Render environment variables)
   }
 });
 
 // Route to accept bookings and send email
-app.post('/api/bookings', async (req, res) => {
+app.post('/api/bookings', (req, res) => {
   const booking = req.body;
   console.log('📬 New Booking Received:', booking);
 
   const mailOptions = {
-    from: `"FF SmartScheduler" <${process.env.EMAIL_USER}>`, // sender address
-    to: booking.agentEmail, // receiver (agent)
-    subject: `New Booking from ${booking.clientName} - ${booking.appointmentType}`,
+    from: `"FF SmartScheduler" <${process.env.EMAIL_USER}>`,  // sender address
+    to: booking.agentEmail,                                   // recipient (agent email)
+    subject: `New Appointment Request from ${booking.clientName}`,
     text: `
-New appointment booking details:
+You have a new booking request:
 
-Agent: ${booking.agent}
 Appointment Type: ${booking.appointmentType}
 Duration: ${booking.appointmentDuration}
 
-Client Name: ${booking.clientName}
-Client Email: ${booking.clientEmail}
-Client Phone: ${booking.clientPhone}
-Message: ${booking.clientMessage || 'No message provided'}
+Client Details:
+Name: ${booking.clientName}
+Email: ${booking.clientEmail}
+Phone: ${booking.clientPhone}
+Message: ${booking.clientMessage || 'No additional message.'}
 
 Submitted At: ${booking.submittedAt}
-    `,
+    `
   };
 
-  try {
-    await transporter.sendMail(mailOptions);
-    res.json({ message: 'Booking received and email sent to agent!' });
-  } catch (error) {
-    console.error('Error sending email:', error);
-    res.status(500).json({ message: 'Booking received but failed to send email.' });
-  }
+  transporter.sendMail(mailOptions, (error, info) => {
+    if (error) {
+      console.error('❌ Error sending email:', error);
+      return res.status(500).json({ message: 'Failed to send booking email.' });
+    }
+    console.log('✅ Email sent: ' + info.response);
+    res.json({ message: 'Booking received and email sent successfully!' });
+  });
 });
 
 // Health check
