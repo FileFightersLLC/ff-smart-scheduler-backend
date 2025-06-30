@@ -589,16 +589,16 @@
     }
 
     function startSubscription() {
-      const planType = document.getElementById('planType').value;
-      const agentEmail = document.getElementById('displayEmail').textContent;
-      const agentName = document.getElementById('displayName').textContent;
-      
-      // In production, redirect to your payment processor
-      alert(`Starting ${planType} subscription for ${agentName} (${agentEmail})\n\nThis would redirect to your payment processor in production.`);
-      
-      // Example: redirect to Stripe Checkout or similar
-      // window.location.href = `https://your-payment-processor.com/checkout?plan=${planType}&email=${agentEmail}`;
-    }
-  </script>
+  const agentEmail = document.getElementById('displayEmail').textContent.trim();
+  let gumroadUrl = 'https://filefighters.gumroad.com/l/SmartScheduler';
+
+  if (agentEmail) {
+    gumroadUrl += `?email=${encodeURIComponent(agentEmail)}`;
+  }
+
+  window.open(gumroadUrl, '_blank');
+}
+
+
 </body>
 </html>
