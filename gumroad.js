@@ -11,7 +11,7 @@ router.post('/gumroad', (req, res) => {
   } = req.body;
 
   // Get full name from custom fields (make sure you added this in Gumroad product settings)
-  const full_name = custom_fields.full_name || 'Not provided';
+  const full_name = custom_fields.Full_Name || 'Not provided';
 
   // Determine plan type based on price
   let plan = 'starter';
