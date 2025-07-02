@@ -1,7 +1,28 @@
 const express = require('express');
 const router = express.Router();
+const { MongoClient } = require('mongodb');
 
-router.post('/gumroad', (req, res) => {
+const uri = process.env.MONGODB_URI;
+const client = new MongoClient(uri, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+});
+
+let db;
+
+// Connect once on module load
+async function connectDB() {
+  try {
+    await client.connect();
+    db = client.db('SmartSchedulerDB'); // Use your DB name here
+    console.log('✅ Connected to MongoDB');
+  } catch (error) {
+    console.error('❌ MongoDB connection error:', error);
+  }
+}
+connectDB();
+
+router.post('/gumroad', async (req, res) => {
   const {
     email,               // Gumroad webhook sends this
     product_name,        // e.g., "FF SmartScheduler"
@@ -28,9 +49,27 @@ router.post('/gumroad', (req, res) => {
     plan
   });
 
-  // TODO: Store in database or activate account access here
+  // Insert purchase into MongoDB
+  try {
+    const purchaseData = {
+      email,
+      full_name,
+      product_name,
+      price,
+      sale_id,
+      plan,
+      custom_fields,
+      receivedAt: new Date(),
+    };
 
-  res.status(200).send('Webhook received.');
+    const result = await db.collection('purchases').insertOne(purchaseData);
+    console.log(`✅ Purchase saved with _id: ${result.insertedId}`);
+
+    res.status(200).send('Webhook received and processed.');
+  } catch (error) {
+    console.error('❌ Error saving purchase to DB:', error);
+    res.status(500).send('Internal Server Error');
+  }
 });
 
 module.exports = router;
