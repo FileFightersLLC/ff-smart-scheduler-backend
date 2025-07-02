@@ -3,21 +3,22 @@ const router = express.Router();
 
 router.post('/gumroad', (req, res) => {
   const {
-    email,         // Correct field from Gumroad
-    full_name,     // Optional but usually included
-    product_name,
-    price,
-    sale_id
+    email,               // Gumroad webhook sends this
+    product_name,        // e.g., "FF SmartScheduler"
+    price,               // e.g., "8900"
+    sale_id,             // unique ID for this transaction
+    custom_fields = {}   // your custom fields like full_name
   } = req.body;
 
-  // Determine plan type based on price
-  let plan = 'starter'; // default plan
-  if (price === '8900') {
-    plan = 'professional';
-  } else if (price === '14900') {
-    plan = 'enterprise';
-  }
+  // Get full name from custom fields (make sure you added this in Gumroad product settings)
+  const full_name = custom_fields.full_name || 'Not provided';
 
+  // Determine plan type based on price
+  let plan = 'starter';
+  if (price === '8900') plan = 'professional';
+  else if (price === '14900') plan = 'enterprise';
+
+  // Log the purchase
   console.log('✅ Gumroad Webhook Received:', {
     email,
     full_name,
@@ -27,7 +28,7 @@ router.post('/gumroad', (req, res) => {
     plan
   });
 
-  // Step 2: Save this info to a database or trigger plan activation here
+  // TODO: Store in database or activate account access here
 
   res.status(200).send('Webhook received.');
 });
