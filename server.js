@@ -6,6 +6,25 @@ const gumroadRoutes = require('./gumroad'); // ✅ Import Gumroad route
 const app = express();
 const port = process.env.PORT || 3000;
 
+const jwt = require('jsonwebtoken');
+
+app.post('/api/verify-token', (req, res) => {
+  const { token } = req.body;
+  const secret = process.env.JWT_SECRET;
+
+  try {
+    const decoded = jwt.verify(token, secret);
+    res.status(200).json({
+      email: decoded.email,
+      plan: decoded.plan,
+      full_name: decoded.full_name
+    });
+  } catch (err) {
+    res.status(401).json({ error: 'Invalid or expired token' });
+  }
+});
+
+
 // Middleware
 app.use(cors());
 

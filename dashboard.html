@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>My Dashboard</title>
+</head>
+<body>
+  <h1>Welcome, <span id="name"></span>!</h1>
+  <p>Your plan: <strong id="plan"></strong></p>
+
+  <div id="appt-section">
+    <h2>Your Appointment Types</h2>
+    <p>You can add up to <span id="appt-limit"></span> appointment types.</p>
+    <!-- Add interface here -->
+  </div>
+
+  <script>
+    const plan = localStorage.getItem('ff_user_plan');
+    const name = localStorage.getItem('ff_user_name');
+
+    if (!plan || !name) {
+      window.location.href = '/login-expired.html'; // or redirect to landing page
+    }
+
+    document.getElementById('name').textContent = name;
+    document.getElementById('plan').textContent = plan;
+
+    // Appointment limits
+    const limits = {
+      starter: 3,
+      professional: 10,
+      enterprise: 'Unlimited'
+    };
+
+    document.getElementById('appt-limit').textContent = limits[plan] || 3;
+  </script>
+</body>
+</html>

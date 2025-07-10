@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Agent Setup - FF SmartScheduler</title>
+  <!-- Your existing CSS remains unchanged here -->
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #0b2545 0%, #13547a 50%, #00bcd4 100%);
+      color: white;
+      text-align: center;
+      min-height: 100vh;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    /* Animated background elements */
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: 
+        radial-gradient(circle at 20% 80%, rgba(0, 188, 212, 0.1) 0%, transparent 50%),
+        radial-gradient(circle at 80% 20%, rgba(19, 84, 122, 0.1) 0%, transparent 50%),
+        radial-gradient(circle at 40% 40%, rgba(11, 37, 69, 0.1) 0%, transparent 50%);
+      animation: float 20s ease-in-out infinite;
+      z-index: -1;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0px) rotate(0deg); }
+      50% { transform: translateY(-20px) rotate(180deg); }
+    }
+
+    .container {
+      max-width: 800px;
+      margin: auto;
+      padding: 2rem;
+      position: relative;
+      z-index: 1;
+    }
+
+    .header {
+      margin-bottom: 3rem;
+      animation: slideDown 0.8s ease-out;
+    }
+
+    @keyframes slideDown {
+      from { transform: translateY(-30px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+
+    h1 {
+      font-size: 3rem;
+      margin-bottom: 0.5rem;
+      background: linear-gradient(45deg, #ffffff, #00bcd4);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+    }
+
+    h2 {
+      font-weight: 300;
+      font-size: 1.6rem;
+      margin-bottom: 1rem;
+      color: #c2e6ea;
+    }
+
+    .subtitle {
+      font-size: 1.1rem;
+      color: #e0f7fa;
+      margin-bottom: 2rem;
+    }
+
+    .form-container {
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
+      padding: 2.5rem;
+      border-radius: 20px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      margin-bottom: 2rem;
+      animation: slideUp 0.8s ease-out 0.3s both;
+    }
+
+    @keyframes slideUp {
+      from { transform: translateY(30px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+
+    .form-group {
+      margin-bottom: 2rem;
+      text-align: left;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 0.5rem;
+      color: #e0f7fa;
+      font-weight: 500;
+      font-size: 1.1rem;
+    }
+
+    input, select {
+      width: 100%;
+      padding: 1.2rem;
+      border-radius: 12px;
+      border: 2px solid rgba(255, 255, 255, 0.2);
+      background: rgba(255, 255, 255, 0.9);
+      font-size: 1rem;
+      transition: all 0.3s ease;
+      color: #0b2545;
+    }
+
+    input:focus, select:focus {
+      outline: none;
+      border-color: #00bcd4;
+      box-shadow: 0 0 0 3px rgba(0, 188, 212, 0.2);
+      transform: translateY(-2px);
+    }
+
+    .btn-primary {
+      background: linear-gradient(45deg, #00bcd4, #0199aa);
+      color: white;
+      padding: 1.2rem 2.5rem;
+      border: none;
+      border-radius: 12px;
+      font-size: 1.2rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 4px 15px rgba(0, 188, 212, 0.4);
+      width: 100%;
+    }
+
+    .btn-primary::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+      transition: left 0.5s;
+    }
+
+    .btn-primary:hover::before {
+      left: 100%;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(0, 188, 212, 0.6);
+    }
+
+    .btn-secondary {
+      background: transparent;
+      color: #00bcd4;
+      padding: 0.75rem 1.5rem;
+      border: 2px solid #00bcd4;
+      border-radius: 12px;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-decoration: none;
+      display: inline-block;
+    }
+
+    .btn-secondary:hover {
+      background: #00bcd4;
+      color: white;
+      transform: translateY(-2px);
+    }
+
+    .pricing-cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 1.5rem;
+      margin: 2rem 0;
+    }
+
+    .pricing-card {
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
+      padding: 2rem;
+      border-radius: 16px;
+      border: 2px solid rgba(255, 255, 255, 0.2);
+      transition: all 0.3s ease;
+      position: relative;
+    }
+
+    .pricing-card:hover {
+      transform: translateY(-5px);
+      border-color: #00bcd4;
+      box-shadow: 0 10px 30px rgba(0, 188, 212, 0.3);
+    }
+
+    .pricing-card.popular {
+      border-color: #00bcd4;
+      transform: scale(1.05);
+    }
+
+    .pricing-card.popular::before {
+      content: 'MOST POPULAR';
+      position: absolute;
+      top: -10px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #00bcd4;
+      color: white;
+      padding: 0.25rem 1rem;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: bold;
+    }
+
+    .plan-name {
+      font-size: 1.5rem;
+      font-weight: bold;
+      margin-bottom: 0.5rem;
+      color: #00bcd4;
+    }
+
+    .plan-price {
+      font-size: 2.5rem;
+      font-weight: bold;
+      margin-bottom: 0.5rem;
+    }
+
+    .plan-period {
+      color: #c2e6ea;
+      margin-bottom: 1.5rem;
+    }
+
+    .plan-features {
+      list-style: none;
+      padding: 0;
+      margin-bottom: 2rem;
+    }
+
+    .plan-features li {
+      padding: 0.5rem 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      display: flex;
+      align-items: center;
+    }
+
+    .plan-features li::before {
+      content: '✓';
+      color: #4caf50;
+      font-weight: bold;
+      margin-right: 0.5rem;
+    }
+
+    .result-container {
+      background: rgba(76, 175, 80, 0.1);
+      border: 2px solid #4caf50;
+      padding: 2rem;
+      border-radius: 20px;
+      backdrop-filter: blur(10px);
+      text-align: left;
+      display: none;
+    }
+
+    .link-display {
+      background: rgba(255, 255, 255, 0.9);
+      color: #0b2545;
+      padding: 1rem;
+      border-radius: 8px;
+      font-family: monospace;
+      font-size: 0.9rem;
+      word-break: break-all;
+      margin: 1rem 0;
+      border: 1px solid #00bcd4;
+    }
+
+    .copy-btn {
+      background: #4caf50;
+      color: white;
+      border: none;
+      padding: 0.5rem 1rem;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      margin-left: 1rem;
+    }
+
+    .copy-btn:hover {
+      background: #45a049;
+    }
+
+    .back-link {
+      position: absolute;
+      top: 2rem;
+      left: 2rem;
+    }
+
+    @media (max-width: 768px) {
+      .container {
+        padding: 1rem;
+      }
+      
+      h1 {
+        font-size: 2.5rem;
+      }
+      
+      .pricing-cards {
+        grid-template-columns: 1fr;
+      }
+      
+      .pricing-card.popular {
+        transform: none;
+      }
+    }
+  </style>
+
+</head>
+<body>
+  <div class="back-link">
+    <a href="index.html" class="btn-secondary">← Back to Booking</a>
+  </div>
+
+  <div class="container">
+    <!-- Header -->
+    <div class="header">
+      <h1>🏢 Agent Setup</h1>
+      <h2>Get Your Personalized Booking Page</h2>
+      <p class="subtitle">
+        Create your custom booking link in seconds and start converting leads into appointments!
+      </p>
+    </div>
+
+    <!-- Pricing Plans -->
+    <div class="pricing-cards">
+      <!-- ... all pricing plan cards ... -->
+    </div>
+
+    <!-- Free Trial Form -->
+    <div class="form-container">
+      <h3 style="margin-bottom: 1rem; color: #00bcd4;">🎯 Try It Free - Generate Your Link Now!</h3>
+      <p style="color: #c2e6ea; margin-bottom: 2rem;">
+        Get a free preview of your personalized booking page. No credit card required.
+      </p>
+
+      <form id="agentForm">
+        <div class="form-group">
+          <label for="agentName">Full Name *</label>
+          <input type="text" id="agentName" placeholder="Enter your full name" required />
+        </div>
+        
+        <div class="form-group">
+          <label for="agentEmail">Email Address *</label>
+          <input type="email" id="agentEmail" placeholder="Enter your email address" required />
+        </div>
+        
+        <div class="form-group">
+          <label for="agentPhone">Phone Number</label>
+          <input type="tel" id="agentPhone" placeholder="Enter your phone number (optional)" />
+        </div>
+        
+        <div class="form-group">
+          <label for="agentBrokerage">Brokerage/Company</label>
+          <input type="text" id="agentBrokerage" placeholder="Enter your brokerage name (optional)" />
+        </div>
+        
+        <div class="form-group">
+          <label for="planType">Interested in Plan</label>
+          <select id="planType" required>
+            <option value="starter">Starter - $49/month</option>
+            <option value="professional" selected>Professional - $89/month (Most Popular)</option>
+            <option value="enterprise">Enterprise - $149/month</option>
+          </select>
+        </div>
+
+        <button type="submit" class="btn-primary" aria-label="Generate My Booking Link">
+          🚀 Generate My Booking Link
+        </button>
+      </form>
+    </div>
+
+    <!-- Results Display -->
+    <div id="resultContainer" class="result-container">
+      <h3 style="color: #4caf50; margin-bottom: 1rem;">🎉 Your Booking Page is Ready!</h3>
+      
+      <p><strong>Agent:</strong> <span id="displayName"></span></p>
+      <p><strong>Email:</strong> <span id="displayEmail"></span></p>
+      <p><strong>Phone:</strong> <span id="displayPhone"></span></p>
+      
+      <h4 style="margin-top: 2rem; color: #00bcd4;">Your Personalized Booking Link:</h4>
+      <div class="link-display" id="generatedLink"></div>
+      <button class="copy-btn" onclick="copyLink(event)">📋 Copy Link</button>
+      
+      <h4 style="margin-top: 2rem; color: #00bcd4;">QR Code:</h4>
+      <div class="link-display" id="qrCodeLink"></div>
+      <img id="qrImage" style="margin-top: 1rem; max-width: 100%;" alt="QR Code" />
+      <button class="copy-btn" onclick="copyQRLink(event)">📋 Copy QR Link</button>
+      
+      <div style="margin-top: 2rem; padding: 1.5rem; background: rgba(0, 188, 212, 0.1); border-radius: 12px; border-left: 4px solid #00bcd4;">
+        <h4 style="margin-top: 0; color: #00bcd4;">Next Steps:</h4>
+        <ol style="text-align: left; color: #e0f7fa;">
+          <li>Test your booking page by clicking the link above</li>
+          <li>Share this link with your clients via email, text, or social media</li>
+          <li>Generate a QR code for business cards and flyers</li>
+          <li>Start your paid subscription to unlock premium features</li>
+        </ol>
+      </div>
+      
+      <div style="margin-top: 2rem;">
+        <button class="btn-primary" onclick="startSubscription()" style="width: auto; margin-right: 1rem;">
+          💳 Start Paid Subscription
+        </button>
+        <button class="btn-secondary" onclick="generateAnother()">
+          🔄 Generate Another Link
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- JavaScript -->
+  <script>
+    document.getElementById('agentForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      generateBookingLink();
+    });
+
+    function generateBookingLink() {
+      const name = document.getElementById('agentName').value.trim();
+      const email = document.getElementById('agentEmail').value.trim();
+      const phone = document.getElementById('agentPhone').value.trim();
+      const brokerage = document.getElementById('agentBrokerage').value.trim();
+      const planType = document.getElementById('planType').value;
+
+      if (!name || !email) {
+        alert('Please fill in your name and email address.');
+        return;
+      }
+
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(email)) {
+        alert('Please enter a valid email address.');
+        return;
+      }
+
+      const params = new URLSearchParams({ agent: name, email });
+      if (phone) params.append('phone', phone);
+      if (brokerage) params.append('brand', brokerage);
+
+      const bookingLink = `https://ffscheduler.netlify.app/index.html?${params.toString()}`;
+      const qrLink = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(bookingLink)}`;
+
+      document.getElementById('displayName').textContent = name;
+      document.getElementById('displayEmail').textContent = email;
+      document.getElementById('displayPhone').textContent = phone || 'Not provided';
+      document.getElementById('generatedLink').textContent = bookingLink;
+      document.getElementById('qrCodeLink').textContent = qrLink;
+      document.getElementById('qrImage').src = qrLink;
+
+      document.getElementById('resultContainer').style.display = 'block';
+      document.querySelector('.form-container').style.display = 'none';
+      document.getElementById('resultContainer').scrollIntoView({ behavior: 'smooth' });
+
+      window.currentBookingLink = bookingLink;
+      window.currentQRLink = qrLink;
+
+      const agentData = {
+        name,
+        email,
+        phone,
+        brokerage,
+        planType,
+        bookingLink,
+        qrLink,
+        registeredAt: new Date().toISOString()
+      };
+      console.log('Agent Registration:', agentData);
+    }
+
+    function copyLink(event) {
+      navigator.clipboard.writeText(window.currentBookingLink).then(() => {
+        const btn = event.target;
+        const originalText = btn.textContent;
+        btn.textContent = '✅ Copied!';
+        setTimeout(() => {
+          btn.textContent = originalText;
+        }, 2000);
+      });
+    }
+
+    function copyQRLink(event) {
+      navigator.clipboard.writeText(window.currentQRLink).then(() => {
+        const btn = event.target;
+        const originalText = btn.textContent;
+        btn.textContent = '✅ Copied!';
+        setTimeout(() => {
+          btn.textContent = originalText;
+        }, 2000);
+      });
+    }
+
+    function generateAnother() {
+      document.getElementById('resultContainer').style.display = 'none';
+      document.querySelector('.form-container').style.display = 'block';
+      document.getElementById('agentForm').reset();
+      document.querySelector('.form-container').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    function startSubscription() {
+      const agentEmail = document.getElementById('displayEmail').textContent.trim();
+      let gumroadUrl = 'https://filefighters.gumroad.com/l/SmartScheduler';
+      if (agentEmail) {
+        gumroadUrl += `?email=${encodeURIComponent(agentEmail)}`;
+      }
+      window.open(gumroadUrl, '_blank');
+    }
+  </script>
+</body>
+</html>

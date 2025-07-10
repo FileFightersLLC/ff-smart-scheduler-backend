@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FF SmartScheduler – Real Estate Booking</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #0b2545 0%, #13547a 50%, #00bcd4 100%);
+      color: white;
+      text-align: center;
+      min-height: 100vh;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    /* Animated background elements */
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: 
+        radial-gradient(circle at 20% 80%, rgba(0, 188, 212, 0.1) 0%, transparent 50%),
+        radial-gradient(circle at 80% 20%, rgba(19, 84, 122, 0.1) 0%, transparent 50%),
+        radial-gradient(circle at 40% 40%, rgba(11, 37, 69, 0.1) 0%, transparent 50%);
+      animation: float 20s ease-in-out infinite;
+      z-index: -1;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0px) rotate(0deg); }
+      50% { transform: translateY(-20px) rotate(180deg); }
+    }
+
+    .container {
+      max-width: 700px;
+      margin: auto;
+      padding: 2rem;
+      position: relative;
+      z-index: 1;
+    }
+
+    .header {
+      margin-bottom: 2rem;
+      animation: slideDown 0.8s ease-out;
+    }
+
+    @keyframes slideDown {
+      from { transform: translateY(-30px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+
+    h1 {
+      font-size: 3rem;
+      margin-bottom: 0.5rem;
+      background: linear-gradient(45deg, #ffffff, #00bcd4);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+    }
+
+    h2 {
+      font-weight: 300;
+      font-size: 1.4rem;
+      margin-bottom: 1.5rem;
+      color: #c2e6ea;
+      animation: fadeIn 1s ease-out 0.3s both;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    p.description {
+      font-size: 1.1rem;
+      line-height: 1.7;
+      margin-bottom: 2.5rem;
+      color: #e0f7fa;
+      animation: fadeIn 1s ease-out 0.6s both;
+    }
+
+    .appointment-grid {
+      display: grid;
+      gap: 1rem;
+      margin-bottom: 2rem;
+      animation: slideUp 0.8s ease-out 0.9s both;
+    }
+
+    @keyframes slideUp {
+      from { transform: translateY(30px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+
+    .card {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      color: #0b2545;
+      padding: 1.5rem;
+      border-radius: 16px;
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      border: 2px solid transparent;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(0, 188, 212, 0.2), transparent);
+      transition: left 0.5s;
+    }
+
+    .card:hover::before {
+      left: 100%;
+    }
+
+    .card:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 20px 40px rgba(0, 188, 212, 0.3);
+      border-color: #00bcd4;
+    }
+
+    .card-emoji {
+      font-size: 2rem;
+      margin-bottom: 0.5rem;
+      display: block;
+    }
+
+    .card-title {
+      font-weight: 600;
+      font-size: 1.1rem;
+      margin-bottom: 0.25rem;
+    }
+
+    .card-duration {
+      color: #666;
+      font-size: 0.9rem;
+    }
+
+    .form-container {
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
+      padding: 2rem;
+      border-radius: 20px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .form-group {
+      margin-bottom: 1.5rem;
+      text-align: left;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 0.5rem;
+      color: #e0f7fa;
+      font-weight: 500;
+    }
+
+    input {
+      width: 100%;
+      padding: 1rem;
+      border-radius: 12px;
+      border: 2px solid rgba(255, 255, 255, 0.2);
+      background: rgba(255, 255, 255, 0.9);
+      font-size: 1rem;
+      transition: all 0.3s ease;
+      color: #0b2545;
+    }
+
+    input:focus {
+      outline: none;
+      border-color: #00bcd4;
+      box-shadow: 0 0 0 3px rgba(0, 188, 212, 0.2);
+      transform: translateY(-2px);
+    }
+
+    .btn-primary {
+      background: linear-gradient(45deg, #00bcd4, #0199aa);
+      color: white;
+      padding: 1rem 2rem;
+      border: none;
+      border-radius: 12px;
+      font-size: 1.1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 4px 15px rgba(0, 188, 212, 0.4);
+    }
+
+    .btn-primary::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+      transition: left 0.5s;
+    }
+
+    .btn-primary:hover::before {
+      left: 100%;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(0, 188, 212, 0.6);
+    }
+
+    .btn-secondary {
+      background: transparent;
+      color: #00bcd4;
+      padding: 0.75rem 1.5rem;
+      border: 2px solid #00bcd4;
+      border-radius: 12px;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      margin-right: 1rem;
+    }
+
+    .btn-secondary:hover {
+      background: #00bcd4;
+      color: white;
+      transform: translateY(-2px);
+    }
+
+    .success-container {
+      background: rgba(76, 175, 80, 0.1);
+      border: 2px solid #4caf50;
+      padding: 2rem;
+      border-radius: 20px;
+      backdrop-filter: blur(10px);
+    }
+
+    .success-icon {
+      font-size: 4rem;
+      margin-bottom: 1rem;
+      animation: bounce 0.6s ease-out;
+    }
+
+    @keyframes bounce {
+      0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+      40% { transform: translateY(-10px); }
+      60% { transform: translateY(-5px); }
+    }
+
+    .agent-info {
+      background: rgba(255, 255, 255, 0.1);
+      padding: 1rem;
+      border-radius: 12px;
+      margin-bottom: 2rem;
+      border-left: 4px solid #00bcd4;
+    }
+
+    .step-indicator {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 2rem;
+      gap: 1rem;
+    }
+
+    .step {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      transition: all 0.3s ease;
+    }
+
+    .step.active {
+      background: #00bcd4;
+      transform: scale(1.1);
+    }
+
+    .step.completed {
+      background: #4caf50;
+    }
+
+    @media (max-width: 768px) {
+      .container {
+        padding: 1rem;
+      }
+      
+      h1 {
+        font-size: 2.5rem;
+      }
+      
+      .card {
+        padding: 1.25rem;
+      }
+    }
+
+    .fade-in {
+      animation: fadeIn 0.5s ease-out;
+    }
+
+    .slide-in {
+      animation: slideUp 0.5s ease-out;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>FF SmartScheduler</h1>
+      <h2 id="welcomeMsg">Your Branded Appointment Booking Assistant</h2>
+      <div class="agent-info" id="agentInfo" style="display: none;">
+        <strong id="agentNameDisplay"></strong><br>
+        <span id="agentContactInfo"></span>
+      </div>
+      <p class="description">
+        Designed for real estate professionals who want to save time, look sharp, and turn browsers into buyers. Select an appointment type below to get started.
+      </p>
+      
+      <!-- Agent Registration Link -->
+      <div style="margin-bottom: 2rem;">
+        <a href="agent-setup.html" class="btn-secondary" style="text-decoration: none; display: inline-block;">
+          🏢 Agents Click Here!
+        </a>
+        <p style="font-size: 0.9rem; color: #c2e6ea; margin-top: 0.5rem;">
+          Get your personalized booking page
+        </p>
+      </div>
+    </div>
+
+    <!-- Step Indicator -->
+    <div class="step-indicator">
+      <div class="step active" id="step-1">1</div>
+      <div class="step" id="step-2">2</div>
+      <div class="step" id="step-3">3</div>
+    </div>
+
+    <!-- Step 1: Appointment Type Selection -->
+    <div id="step1">
+      <p style="font-size: 1.2rem; margin-bottom: 1.5rem;">Select an Appointment Type:</p>
+      <div class="appointment-grid">
+        <div class="card" onclick="chooseType('Home Showing', '🏠', '30 minutes')">
+          <span class="card-emoji">🏠</span>
+          <div class="card-title">Home Showing</div>
+          <div class="card-duration">30 minutes</div>
+        </div>
+        <div class="card" onclick="chooseType('Buyer Consultation', '💬', '45 minutes')">
+          <span class="card-emoji">💬</span>
+          <div class="card-title">Buyer Consultation</div>
+          <div class="card-duration">45 minutes</div>
+        </div>
+        <div class="card" onclick="chooseType('Listing Strategy Call', '📞', '15 minutes')">
+          <span class="card-emoji">📞</span>
+          <div class="card-title">Listing Strategy Call</div>
+          <div class="card-duration">15 minutes</div>
+        </div>
+        <div class="card" onclick="chooseType('Market Analysis', '📊', '30 minutes')">
+          <span class="card-emoji">📊</span>
+          <div class="card-title">Market Analysis</div>
+          <div class="card-duration">30 minutes</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 2: Contact Information -->
+    <div id="step2" style="display:none;">
+      <div class="form-container fade-in">
+        <p id="selectedType" style="font-size: 1.3rem; margin-bottom: 2rem; color: #00bcd4;"></p>
+        
+        <div class="form-group">
+          <label for="name">Full Name *</label>
+          <input type="text" id="name" placeholder="Enter your full name" required />
+        </div>
+        
+        <div class="form-group">
+          <label for="email">Email Address *</label>
+          <input type="email" id="email" placeholder="Enter your email address" required />
+        </div>
+        
+        <div class="form-group">
+          <label for="phone">Phone Number *</label>
+          <input type="tel" id="phone" placeholder="Enter your phone number" required />
+        </div>
+        
+        <div class="form-group">
+          <label for="message">Additional Message (Optional)</label>
+          <input type="text" id="message" placeholder="Any specific requirements or questions?" />
+        </div>
+        
+        <div style="text-align: center; margin-top: 2rem;">
+          <button type="button" class="btn-secondary" onclick="goBack()">← Back</button>
+          <button type="button" class="btn-primary" onclick="submitForm()">Book Appointment →</button>
+        </div>
+      
+        <div id="loadingSpinner" style="display:none; text-align:center; margin-top:1.5rem;">
+          <div style="display:inline-block; width:40px; height:40px; border:4px solid #00bcd4; border-top-color:transparent; border-radius:50%; animation:spin 1s linear infinite;"></div>
+          <p style="color:#c2e6ea; margin-top:0.5rem;">Sending your request...</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 3: Confirmation -->
+    <div id="step3" style="display:none;">
+      <div class="success-container fade-in">
+        <div class="success-icon">✅</div>
+        <h2>Appointment Request Sent!</h2>
+        <p>Your request has been submitted to <strong><span id="realtorNameText"></span></strong>.</p>
+        <p>They'll reach out to you within 24 hours to confirm your appointment details.</p>
+        
+        <div style="margin-top: 2rem; text-align: left; background: rgba(255,255,255,0.1); padding: 1.5rem; border-radius: 12px;">
+          <h3>Appointment Summary:</h3>
+          <p><strong>Type:</strong> <span id="summaryType"></span></p>
+          <p><strong>Duration:</strong> <span id="summaryDuration"></span></p>
+          <p><strong>Contact:</strong> <span id="summaryContact"></span></p>
+          <p><strong>Submitted:</strong> <span id="summaryTime"></span></p>
+        </div>
+        
+        <div style="margin-top: 2rem;">
+          <button type="button" class="btn-primary" onclick="startOver()">Book Another Appointment</button>
+        </div>
+      </div>
+    </div>
+  </div>
+<script>
+  // Get URL parameters
+  const urlParams = new URLSearchParams(window.location.search);
+  const agentName = urlParams.get('agent') || "your agent";
+  const agentEmail = urlParams.get('email') || "no-realtor@example.com";
+  const agentPhone = urlParams.get('phone') || "";
+  const agentBrand = urlParams.get('brand') || "";
+
+  // Update UI with agent information
+  document.getElementById("welcomeMsg").textContent = `Booking page for ${agentName}`;
+
+  if (agentName !== "your agent") {
+    const agentInfo = document.getElementById("agentInfo");
+    const agentNameDisplay = document.getElementById("agentNameDisplay");
+    const agentContactInfo = document.getElementById("agentContactInfo");
+
+    agentNameDisplay.textContent = agentName;
+    agentContactInfo.innerHTML = agentEmail + (agentPhone ? ` • ${agentPhone}` : '');
+    agentInfo.style.display = 'block';
+  }
+
+  let appointmentType = "";
+  let appointmentEmoji = "";
+  let appointmentDuration = "";
+
+  function updateStepIndicator(currentStep) {
+    document.querySelectorAll('.step').forEach((step, index) => {
+      step.classList.remove('active', 'completed');
+      if (index + 1 < currentStep) {
+        step.classList.add('completed');
+      } else if (index + 1 === currentStep) {
+        step.classList.add('active');
+      }
+    });
+  }
+
+  function chooseType(type, emoji, duration) {
+    appointmentType = type;
+    appointmentEmoji = emoji;
+    appointmentDuration = duration;
+
+    document.getElementById('selectedType').innerHTML = `${emoji} Booking: ${type} <span style="color: #c2e6ea;">(${duration})</span>`;
+
+    document.getElementById('step1').style.display = 'none';
+    document.getElementById('step2').style.display = 'block';
+    updateStepIndicator(2);
+  }
+
+  function goBack() {
+    document.getElementById('step2').style.display = 'none';
+    document.getElementById('step1').style.display = 'block';
+    updateStepIndicator(1);
+  }
+
+  function validateForm() {
+    const name = document.getElementById('name').value.trim();
+    const email = document.getElementById('email').value.trim();
+    const phone = document.getElementById('phone').value.trim();
+
+    if (!name || !email || !phone) {
+      alert('Please fill out all required fields.');
+      return false;
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      alert('Please enter a valid email address.');
+      return false;
+    }
+
+    return true;
+  }
+
+  function submitForm() {
+    if (!validateForm()) {
+      return;
+    }
+
+    const name = document.getElementById('name').value.trim();
+    const email = document.getElementById('email').value.trim();
+    const phone = document.getElementById('phone').value.trim();
+    const message = document.getElementById('message').value.trim();
+    document.getElementById('loadingSpinner').style.display = 'block';
+
+    const bookingData = {
+      agent: agentName,
+      agentEmail: agentEmail,
+      appointmentType,
+      appointmentEmoji,
+      appointmentDuration,
+      clientName: name,
+      clientEmail: email,
+      clientPhone: phone,
+      clientMessage: message,
+      submittedAt: new Date().toISOString(),
+      timestamp: new Date().toLocaleString()
+    };
+
+    console.log("Booking Request:", bookingData);
+
+    // Update confirmation page
+    document.getElementById('realtorNameText').textContent = agentName;
+    document.getElementById('summaryType').textContent = `${appointmentEmoji} ${appointmentType}`;
+    document.getElementById('summaryDuration').textContent = appointmentDuration;
+    document.getElementById('summaryContact').textContent = `${name} • ${email} • ${phone}`;
+    document.getElementById('summaryTime').textContent = new Date().toLocaleString();
+
+    fetch('https://ff-smart-scheduler-backend.onrender.com/api/bookings', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(bookingData)
+    })
+    .then(response => response.json())
+    .then(data => {
+      console.log('✅ Booking sent:', data);
+      document.getElementById('loadingSpinner').style.display = 'none';
+
+      // Show confirmation step after successful send
+      document.getElementById('step2').style.display = 'none';
+      document.getElementById('step3').style.display = 'block';
+      updateStepIndicator(3);
+    })
+    .catch(error => {
+      console.error('❌ Error sending booking:', error);
+      document.getElementById('loadingSpinner').style.display = 'none';
+      alert('There was an error submitting your booking. Please try again.');
+    });
+  }
+
+  function startOver() {
+    document.getElementById('name').value = '';
+    document.getElementById('email').value = '';
+    document.getElementById('phone').value = '';
+    document.getElementById('message').value = '';
+
+    document.getElementById('step3').style.display = 'none';
+    document.getElementById('step1').style.display = 'block';
+    updateStepIndicator(1);
+  }
+
+  // Initialize
+  updateStepIndicator(1);
+</script>
+
+</body>
+</html>
