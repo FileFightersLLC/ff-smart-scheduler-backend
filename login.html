@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Logging In...</title>
+  <script>
+    async function verifyToken() {
+      const pathParts = window.location.pathname.split('/');
+      const token = pathParts[pathParts.length - 1];
+
+      try {
+        const res = await fetch('https://ff-smart-scheduler-backend.onrender.com/api/verify-token', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ token })
+        });
+
+        const data = await res.json();
+
+        if (res.ok) {
+          // Save token in localStorage
+          localStorage.setItem('ff_token', token);
+          localStorage.setItem('ff_user_email', data.email);
+          localStorage.setItem('ff_user_plan', data.plan);
+          localStorage.setItem('ff_user_name', data.full_name);
+
+          // Redirect to dashboard
+          window.location.href = '/dashboard.html';
+        } else {
+          document.body.innerHTML = `<h2>${data.error}</h2>`;
+        }
+      } catch (err) {
+        console.error(err);
+        document.body.innerHTML = `<h2>Login failed. Please try again.</h2>`;
+      }
+    }
+
+    window.onload = verifyToken;
+  </script>
+</head>
+<body>
+  <h2>Verifying your access...</h2>
+</body>
+</html>
