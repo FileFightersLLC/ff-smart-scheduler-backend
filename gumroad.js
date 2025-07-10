@@ -2,11 +2,15 @@ const express = require('express');
 const router = express.Router();
 const { MongoClient } = require('mongodb');
 const jwt = require('jsonwebtoken');
+const nodemailer = require('nodemailer');
 
 const uri = process.env.MONGODB_URI;
 const jwtSecret = process.env.JWT_SECRET;
-const client = new MongoClient(uri);
 
+const emailSender = process.env.EMAIL_SENDER;
+const emailPassword = process.env.EMAIL_PASSWORD;
+
+const client = new MongoClient(uri);
 let db;
 
 // Connect to MongoDB
@@ -20,6 +24,15 @@ async function connectDB() {
   }
 }
 connectDB();
+
+// Nodemailer setup
+const transporter = nodemailer.createTransport({
+  service: 'gmail',
+  auth: {
+    user: emailSender,
+    pass: emailPassword
+  }
+});
 
 router.post('/gumroad', async (req, res) => {
   const {
@@ -47,7 +60,7 @@ router.post('/gumroad', async (req, res) => {
   });
 
   try {
-    // Insert user into MongoDB
+    // Insert into DB
     const purchaseData = {
       email,
       full_name,
@@ -61,26 +74,33 @@ router.post('/gumroad', async (req, res) => {
     const result = await db.collection('purchases').insertOne(purchaseData);
     console.log(`✅ Purchase saved with _id: ${result.insertedId}`);
 
-    // Generate JWT login token
+    // Create JWT and dashboard link
     const token = jwt.sign(
-      {
-        email,
-        plan,
-        full_name
-      },
+      { email, plan, full_name },
       jwtSecret,
       { expiresIn: '1h' }
     );
-
-    // Create personalized dashboard login link
     const dashboardLink = `https://ff-smart-scheduler.web.app/login/${token}`;
-
-    // (Optional) Send to frontend or email — for now we’ll log it
     console.log(`🔗 Dashboard access: ${dashboardLink}`);
 
+    // Send email with dashboard link
+    await transporter.sendMail({
+      from: `"FF SmartScheduler" <${emailSender}>`,
+      to: email,
+      subject: 'Your FF SmartScheduler Dashboard Access',
+      html: `
+        <p>Hi ${full_name},</p>
+        <p>Thanks for purchasing <strong>${product_name}</strong>!</p>
+        <p>Your dashboard is ready. Click the link below to access it and customize your booking page:</p>
+        <p><a href="${dashboardLink}">${dashboardLink}</a></p>
+        <p>— FileFighters LLC</p>
+      `
+    });
+
+    console.log(`📧 Email sent to ${email}`);
     res.status(200).send('Webhook received and processed.');
   } catch (error) {
-    console.error('❌ Error saving purchase to DB:', error);
+    console.error('❌ Error saving purchase or sending email:', error);
     res.status(500).send('Internal Server Error');
   }
 });
