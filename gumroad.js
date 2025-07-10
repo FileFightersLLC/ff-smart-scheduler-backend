@@ -1,18 +1,17 @@
 const express = require('express');
 const router = express.Router();
 const { MongoClient } = require('mongodb');
+const jwt = require('jsonwebtoken');
 
+// Load environment variables
 const uri = process.env.MONGODB_URI;
-if (!uri) {
-  console.error('❌ MONGODB_URI environment variable is not set!');
-  process.exit(1); // Stop app startup, must fix config
-}
+const JWT_SECRET = process.env.JWT_SECRET || 'replace-this-with-a-secure-secret';
 
 const client = new MongoClient(uri);
 
 let db;
 
-// Connect once on module load
+// Connect to MongoDB once when the module loads
 async function connectDB() {
   try {
     await client.connect();
@@ -24,27 +23,28 @@ async function connectDB() {
 }
 connectDB();
 
+// Handle Gumroad Webhook
 router.post('/gumroad', async (req, res) => {
-  if (!db) {
-    return res.status(503).send('Database not connected yet, try again shortly.');
-  }
-
   const {
-    email = 'Not provided',
-    product_name = 'Unknown product',
-    price = '',
-    sale_id = 'Unknown sale ID',
-    custom_fields = {},
-  } = req.body || {};
+    email,               // From Gumroad webhook
+    product_name,        // e.g. "FF SmartScheduler"
+    price,               // e.g. "8900"
+    sale_id,             // Unique sale identifier
+    custom_fields = {}   // e.g. { Full_Name: "John Doe" }
+  } = req.body;
 
-  // Get full name from custom fields (make sure you added this in Gumroad product settings)
+  // Extract full name or fallback
   const full_name = custom_fields.Full_Name || 'Not provided';
 
-  // Determine plan type based on price (strings)
+  // Determine plan based on price
   let plan = 'starter';
   if (price === '8900') plan = 'professional';
   else if (price === '14900') plan = 'enterprise';
 
+  // ✅ Generate JWT token for secure login
+  const token = jwt.sign({ email, plan }, JWT_SECRET, { expiresIn: '30d' });
+
+  // Log webhook receipt
   console.log('✅ Gumroad Webhook Received:', {
     email,
     full_name,
@@ -54,20 +54,24 @@ router.post('/gumroad', async (req, res) => {
     plan
   });
 
-  const purchaseData = {
-    email,
-    full_name,
-    product_name,
-    price,
-    sale_id,
-    plan,
-    custom_fields,
-    receivedAt: new Date(),
-  };
-
+  // Store purchase in MongoDB
   try {
+    const purchaseData = {
+      email,
+      full_name,
+      product_name,
+      price,
+      sale_id,
+      plan,
+      token,
+      custom_fields,
+      receivedAt: new Date(),
+    };
+
     const result = await db.collection('purchases').insertOne(purchaseData);
     console.log(`✅ Purchase saved with _id: ${result.insertedId}`);
+    console.log(`🔗 Login URL: https://ff-smart-scheduler-backend.onrender.com/login/${token}`);
+
     res.status(200).send('Webhook received and processed.');
   } catch (error) {
     console.error('❌ Error saving purchase to DB:', error);
